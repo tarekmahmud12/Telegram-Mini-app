@@ -10,11 +10,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const adResetTimeInMinutes = 30;
     let timerInterval = null;
 
-    // নতুন ভেরিয়েবল: মোট পয়েন্ট ট্র্যাক করার জন্য
     let totalPoints = 0;
+    let userName = 'User';
     const pointsPerAd = 10;
 
-    // UI এলিমেন্টগুলো সিলেক্ট করা হয়েছে
+    // UI elements
     const totalPointsDisplay = document.getElementById('total-points');
     const userNameDisplay = document.getElementById('user-name-display');
     const welcomeUserNameDisplay = document.getElementById('welcome-user-name');
@@ -23,6 +23,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const totalAdsWatched = document.getElementById('total-ads-watched');
     const welcomeAdsLeft = document.getElementById('welcome-ads-left');
     
+    // BACKEND SERVER URL - REPLACE THIS WITH YOUR VERCEL URL
+    const backendUrl = "https://coin-bazar-backend.vercel.app"; // আপনার Vercel URL এখানে বসিয়ে দেওয়া হয়েছে।
+
+    // Get the Telegram user ID from WebApp data
+    const telegramId = window.Telegram.WebApp.initDataUnsafe.user.id.toString();
+
     // Function to update the points display
     const updatePointsDisplay = () => {
         totalPointsDisplay.textContent = totalPoints;
@@ -36,16 +42,57 @@ document.addEventListener('DOMContentLoaded', () => {
         totalAdsWatched.textContent = adsWatched;
     };
 
+    // Function to save user data to the backend
+    const saveUserDataToBackend = async () => {
+        try {
+            const response = await fetch(`${backendUrl}/api/user/save`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    telegramId: telegramId,
+                    userName: userName,
+                    points: totalPoints
+                })
+            });
+
+            if (response.ok) {
+                console.log("User data saved successfully to backend.");
+            } else {
+                console.error("Failed to save data to backend.");
+            }
+        } catch (error) {
+            console.error('Error saving data to backend:', error);
+        }
+    };
+
+    // Function to load user data from the backend
+    const loadUserDataFromBackend = async () => {
+        try {
+            const response = await fetch(`${backendUrl}/api/user/${telegramId}`);
+            
+            if (response.ok) {
+                const userData = await response.json();
+                userName = userData.userName || 'User';
+                totalPoints = userData.points || 0;
+                
+                userNameDisplay.textContent = userName;
+                welcomeUserNameDisplay.textContent = userName;
+                updatePointsDisplay();
+            } else {
+                console.log("User not found or error loading data. Using default values.");
+            }
+        } catch (error) {
+            console.error('Error loading data from backend:', error);
+        }
+    };
+
     // Function to switch pages
     const switchPage = (pageId) => {
-        // Hide all pages
-        pages.forEach(page => {
-            page.classList.remove('active');
-        });
-        // Show the selected page
+        pages.forEach(page => page.classList.remove('active'));
         document.getElementById(pageId).classList.add('active');
 
-        // Update active class on nav items
         navItems.forEach(item => {
             item.classList.remove('active');
             if (item.dataset.page + '-page' === pageId) {
@@ -54,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // Add click event listeners to nav items
+    // Event listeners
     navItems.forEach(item => {
         item.addEventListener('click', () => {
             const pageId = item.dataset.page + '-page';
@@ -67,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('click', (e) => {
             const input = e.target.previousElementSibling;
             input.select();
-            input.setSelectionRange(0, 99999); // For mobile devices
+            input.setSelectionRange(0, 99999);
             document.execCommand('copy');
             alert('Copied to clipboard!');
         });
@@ -95,11 +142,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const amount = document.getElementById('amount').value;
         const method = document.getElementById('payment-method').value;
         const accountId = document.getElementById('account-id').value;
-
-        // In a real app, you would send this to your backend
         console.log('Withdrawal request submitted:', { amount, method, accountId });
         alert('Withdrawal request submitted successfully!');
-        e.target.reset(); // Clear the form
+        e.target.reset();
     });
 
     // User name editing logic
@@ -109,19 +154,21 @@ document.addEventListener('DOMContentLoaded', () => {
         nameInput.type = 'text';
         nameInput.value = currentName;
         nameInput.className = 'user-name-input';
-        nameInput.maxLength = 20; // নাম কত বড় হবে তা ঠিক করে দেওয়া হয়েছে
+        nameInput.maxLength = 20;
 
         userNameDisplay.replaceWith(nameInput);
         nameInput.focus();
 
         const saveName = () => {
-            const newName = nameInput.value.trim() || 'User'; // খালি থাকলে ডিফল্ট 'User' সেট হবে
+            const newName = nameInput.value.trim() || 'User';
+            userName = newName;
             userNameDisplay.textContent = newName;
             welcomeUserNameDisplay.textContent = newName;
             nameInput.replaceWith(userNameDisplay);
+            saveUserDataToBackend(); // Save updated name to backend
         };
 
-        nameInput.addEventListener('blur', saveName); // যখন ইনপুট থেকে ফোকাস চলে যাবে
+        nameInput.addEventListener('blur', saveName);
         nameInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 saveName();
@@ -154,20 +201,19 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelector('.watch-ad-btn').addEventListener('click', () => {
         if (adsWatched < maxAdsPerCycle) {
             show_9673543().then(() => {
-                // যখন ব্যবহারকারী অ্যাড দেখা শেষ করবে, তখন এই কোডটি এক্সিকিউট হবে
                 adsWatched++;
-                totalPoints += pointsPerAd; // পয়েন্ট যোগ করা হয়েছে
+                totalPoints += pointsPerAd;
                 updateAdsCounter();
-                updatePointsDisplay(); // পয়েন্ট ডিসপ্লে আপডেট করা হয়েছে
+                updatePointsDisplay();
+                saveUserDataToBackend(); // Save updated points to backend
 
                 if (adsWatched === maxAdsPerCycle) {
                     alert('You have watched all ads for this cycle. The timer has started!');
-                    startAdTimer();
+                    // startAdTimer();
                 } else {
                     alert('You earned ' + pointsPerAd + ' points!');
                 }
             }).catch(e => {
-                // অ্যাড লোড হতে কোনো সমস্যা হলে এই কোডটি কাজ করবে
                 console.error('Monetag ad error:', e);
                 alert('There was an error loading the ad. Please try again.');
             });
@@ -175,7 +221,8 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('You have reached the ad limit for this cycle. Please wait for the timer to finish.');
         }
     });
-    
-    updateAdsCounter(); // Initial update
-    updatePointsDisplay(); // Initial update
+
+    // Initial load - লোড হওয়ার সাথে সাথে ডেটাবেস থেকে ডেটা লোড করা হবে
+    loadUserDataFromBackend();
+    updateAdsCounter();
 });
