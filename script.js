@@ -10,6 +10,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const adResetTimeInMinutes = 30;
     let timerInterval = null;
 
+    // নতুন ভেরিয়েবল: মোট পয়েন্ট ট্র্যাক করার জন্য
+    let totalPoints = 0;
+    const pointsPerAd = 10;
+
+    // UI এলিমেন্টগুলো সিলেক্ট করা হয়েছে
+    const totalPointsDisplay = document.getElementById('total-points');
+    const userNameDisplay = document.getElementById('user-name-display');
+    const welcomeUserNameDisplay = document.getElementById('welcome-user-name');
+    const editNameBtn = document.getElementById('edit-name-btn');
+    const adsLeftValue = document.getElementById('ads-left-value');
+    const totalAdsWatched = document.getElementById('total-ads-watched');
+    const welcomeAdsLeft = document.getElementById('welcome-ads-left');
+    
+    // Function to update the points display
+    const updatePointsDisplay = () => {
+        totalPointsDisplay.textContent = totalPoints;
+    };
+
+    // Function to update all ads-related counters
+    const updateAdsCounter = () => {
+        adWatchedCountSpan.textContent = `${adsWatched}/${maxAdsPerCycle} watched`;
+        adsLeftValue.textContent = maxAdsPerCycle - adsWatched;
+        welcomeAdsLeft.textContent = maxAdsPerCycle - adsWatched;
+        totalAdsWatched.textContent = adsWatched;
+    };
+
     // Function to switch pages
     const switchPage = (pageId) => {
         // Hide all pages
@@ -76,11 +102,34 @@ document.addEventListener('DOMContentLoaded', () => {
         e.target.reset(); // Clear the form
     });
 
-    // Watch Ads logic
-    const updateAdCounter = () => {
-        adWatchedCountSpan.textContent = `${adsWatched}/${maxAdsPerCycle} watched`;
-    };
+    // User name editing logic
+    editNameBtn.addEventListener('click', () => {
+        const currentName = userNameDisplay.textContent;
+        const nameInput = document.createElement('input');
+        nameInput.type = 'text';
+        nameInput.value = currentName;
+        nameInput.className = 'user-name-input';
+        nameInput.maxLength = 20; // নাম কত বড় হবে তা ঠিক করে দেওয়া হয়েছে
 
+        userNameDisplay.replaceWith(nameInput);
+        nameInput.focus();
+
+        const saveName = () => {
+            const newName = nameInput.value.trim() || 'User'; // খালি থাকলে ডিফল্ট 'User' সেট হবে
+            userNameDisplay.textContent = newName;
+            welcomeUserNameDisplay.textContent = newName;
+            nameInput.replaceWith(userNameDisplay);
+        };
+
+        nameInput.addEventListener('blur', saveName); // যখন ইনপুট থেকে ফোকাস চলে যাবে
+        nameInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                saveName();
+            }
+        });
+    });
+
+    // Watch Ads logic
     const startAdTimer = () => {
         let timeLeft = adResetTimeInMinutes * 60;
         adTimerSpan.textContent = formatTime(timeLeft);
@@ -90,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (timeLeft <= 0) {
                 clearInterval(timerInterval);
                 adsWatched = 0;
-                updateAdCounter();
+                updateAdsCounter();
                 adTimerSpan.textContent = 'Ready!';
             }
         }, 1000);
@@ -104,16 +153,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelector('.watch-ad-btn').addEventListener('click', () => {
         if (adsWatched < maxAdsPerCycle) {
-            // Monetag Rewarded Interstitial অ্যাড দেখানোর কোড এখানে যুক্ত করা হয়েছে
             show_9673543().then(() => {
                 // যখন ব্যবহারকারী অ্যাড দেখা শেষ করবে, তখন এই কোডটি এক্সিকিউট হবে
                 adsWatched++;
-                updateAdCounter();
+                totalPoints += pointsPerAd; // পয়েন্ট যোগ করা হয়েছে
+                updateAdsCounter();
+                updatePointsDisplay(); // পয়েন্ট ডিসপ্লে আপডেট করা হয়েছে
+
                 if (adsWatched === maxAdsPerCycle) {
                     alert('You have watched all ads for this cycle. The timer has started!');
                     startAdTimer();
                 } else {
-                    alert('You earned 10 points!');
+                    alert('You earned ' + pointsPerAd + ' points!');
                 }
             }).catch(e => {
                 // অ্যাড লোড হতে কোনো সমস্যা হলে এই কোডটি কাজ করবে
@@ -125,5 +176,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
-    updateAdCounter(); // Initial update
+    updateAdsCounter(); // Initial update
+    updatePointsDisplay(); // Initial update
 });

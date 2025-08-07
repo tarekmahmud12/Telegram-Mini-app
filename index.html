@@ -21,9 +21,9 @@
                 <div class="profile-info">
                     <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiLqGbEPB7_YxQqC_SRJmtpap6Y10JyFPK92LOvD7BknNHvuQNK90Lous-9h6zuYULOjK-s6BcVeAT3qDVpa4Al1m9OVk5DTUf-JkKTOiEo3yz2yre8Lkh1gBHP780lphfbqPe_kSZ9UIWZ8jmKG9gE5X5L4LMRSgdDKU8XJF7lbV5BwSmR6O9sXe6VYGI/s1233/1000034050.png" alt="Profile Picture" class="profile-pic">
                     <div class="user-details">
-                        <span class="user-name">Tarek Mahmud</span>
+                        <span class="user-name" id="user-name-display">User</span>
                         <span class="verify-badge">✅</span>
-                        <i class="icon edit-icon">✏️</i>
+                        <i class="icon edit-icon" id="edit-name-btn">✏️</i>
                     </div>
                 </div>
                 <div class="user-stats">
@@ -32,11 +32,11 @@
                         <span class="stat-label">Today</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-value">40</span>
+                        <span class="stat-value" id="ads-left-value">40</span>
                         <span class="stat-label">Left</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-value">0</span>
+                        <span class="stat-value" id="total-ads-watched">0</span>
                         <span class="stat-label">Total</span>
                     </div>
                 </div>
@@ -46,15 +46,15 @@
         <main class="main-content">
             <section id="home-page" class="page active">
                 <div class="welcome-card card">
-                    <h2>Welcome</h2>
-                    <p>Welcome to Coin Bazar, Tarek! Start earning points by completing tasks, watching ads, and inviting friends.</p>
+                    <h2 class="welcome-text">Welcome, <span id="welcome-user-name">User</span>!</h2>
+                    <p>Start earning points by completing tasks, watching ads, and inviting friends.</p>
                     <div class="welcome-stats">
                         <div class="stat-item">
-                            <span class="stat-value">40</span>
+                            <span class="stat-value" id="welcome-ads-left">40</span>
                             <span class="stat-label">Ads Left</span>
                         </div>
                         <div class="stat-item">
-                            <span class="stat-value">0</span>
+                            <span class="stat-value" id="total-points">0</span>
                             <span class="stat-label">Points</span>
                         </div>
                         <div class="stat-item">

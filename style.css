@@ -26,7 +26,8 @@ body {
     padding: 20px;
     text-align: center;
     position: relative;
-    padding-bottom: 80px;
+    /* প্রোফাইল কার্ডের জন্য বেশি জায়গা রাখা হয়েছে */
+    padding-bottom: 100px;
 }
 
 .header-top {
@@ -47,7 +48,8 @@ body {
     padding: 20px;
     margin: 0 10px;
     position: absolute;
-    bottom: -60px;
+    /* প্রোফাইল কার্ডটিকে নিচে নামানো হয়েছে */
+    bottom: -70px;
     left: 10px;
     right: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -117,7 +119,8 @@ body {
 
 .main-content {
     flex-grow: 1;
-    padding: 80px 10px 10px 10px;
+    /* প্রোফাইল কার্ডের জন্য padding বাড়ানো হয়েছে */
+    padding: 90px 10px 10px 10px;
     position: relative;
     z-index: 1;
 }
@@ -278,4 +281,15 @@ input, select {
 
 .nav-item span {
     font-size: 0.8em;
+}
+
+/* নতুন স্টাইল: ইউজার নাম এডিটিং */
+.user-name-input {
+    font-weight: bold;
+    font-size: 1.1em;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 2px 5px;
+    text-align: center;
+    background-color: #f9f9f9;
 }
